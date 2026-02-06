@@ -1,10 +1,10 @@
-# esp32s3-server-image-processing
+# esp32s3-image-processing
 Low level image processing on ESP32S3 with ESP-IDF
 
 ## Setup
 
 1. ESP-IDF v5.x [lke: vscode ESP-IDF extension, with templates provided]
-2. git clone https://github.com/illiamyq/esp32s3-server-image-processing.git
+2. git clone https://github.com/illiamyq/esp32s3-image-processing.git
 3. Configure WiFi:
 ```bash
    idf.py menuconfig
@@ -17,9 +17,9 @@ Low level image processing on ESP32S3 with ESP-IDF
 ```
 
 ## Usage
-
 Upload image:
 ```bash
+curl -X POST --data-binary @image.jpg http://x.x.x.x/upload 
 ```
 
 ## Partition Table
