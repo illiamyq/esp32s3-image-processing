@@ -1,0 +1,6 @@
+# essential sdkconfig parameterse : to change in idf menuconfig (specific for image processing on server(mcu))
+# default partitions -> no space for standart size images
+# sdkconfig is in .gitignore
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
+CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y

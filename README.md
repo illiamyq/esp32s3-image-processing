@@ -20,7 +20,6 @@ Low level image processing on ESP32S3 with ESP-IDF
 
 Upload image:
 ```bash
-curl -X POST --data-binary @image.jpg http://x.x.x.x/upload 
 ```
 
 ## Partition Table
