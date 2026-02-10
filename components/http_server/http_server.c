@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
 #include "esp_log.h"
 #include "esp_http_server.h"
 #include "http_server.h"
@@ -19,15 +20,27 @@ static esp_err_t root_get_handler(httpd_req_t *req)
         "<html>"
         "<head>"
         "<title>ESP32 Image Server</title>"
-        // "<meta http-equiv='refresh' content='5'>"
+        "<script>"
+        "var lastSize = 0;"
+        "async function checkForUpdate() {"
+        "  try {"
+        "    const response = await fetch('/status');"
+        "    const data = await response.json();"
+        "    if (data.image_size && data.image_size !== lastSize) {"
+        "      lastSize = data.image_size;"
+        "      document.getElementById('liveImage').src = '/image/latest.jpg?t=' + Date.now();"
+        "    }"
+        "  } catch(e) {}"
+        "}"
+        "setInterval(checkForUpdate, 2000);"
+        "</script>"
         "</head>"
         "<body>"
         "<h1>ESP32 Image Server</h1>"
-        "<a href=\"https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=RDdQw4w9WgXcQ&start_radio=1\">example</a>"
         "<h2>Upload Image</h2>"
         "<p>Use curl to upload: <code>curl -X POST --data-binary @image.jpg http://192.168.4.1/upload</code></p>"
-        "<h2>Latest Image</h2>"
-        "<img src='/image/latest.jpg' style='max-width:100%' onerror=\"this.style.display='none'\"><br>"
+        "<h2>latest/h2>"
+        "<img id='liveImage' src='/image/latest.jpg' style='max-width:100%'><br>"
         "<p><a href='/image/latest.jpg'>Download latest.jpg</a></p>"
         "</body>"
         "</html>";
@@ -40,7 +53,16 @@ static esp_err_t root_get_handler(httpd_req_t *req)
 static esp_err_t status_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "application/json");
-    httpd_resp_sendstr(req, "{\"status\":\"ok\"}");
+
+    struct stat st;
+    char resp[128];
+    if (stat("/spiffs/latest.jpg", &st) == 0) {
+        snprintf(resp, sizeof(resp), "{\"status\":\"ok\",\"image_size\":%ld}", st.st_size);
+    } else {
+        snprintf(resp, sizeof(resp), "{\"status\":\"ok\",\"image_size\":0}");
+    }
+    
+    httpd_resp_sendstr(req, resp);
     return ESP_OK;
 }
 
@@ -149,7 +171,7 @@ static esp_err_t image_get_handler(httpd_req_t *req)
 // uri ROOT
 static const httpd_uri_t root_uri = {
 // * HTTP route (endpoint) for the web server
-// *bind {URL + HTTP + handler func} 
+// * bind {URL + HTTP + handler func} 
 // match = execute
     .uri = "/",
     .method = HTTP_GET,
