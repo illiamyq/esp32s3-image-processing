@@ -20,6 +20,8 @@ void image_receive_finish(void);
 // url of stored
 const char* image_get_url(void);
 
+bool image_get_metadata_json(char *out, size_t out_len);
+
 #ifdef __cplusplus
 }
 #endif
